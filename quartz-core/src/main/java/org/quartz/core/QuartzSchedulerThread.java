@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *  用于后台调度作业的线程
  * <p>
  * The thread responsible for performing the work of firing <code>{@link Trigger}</code>
  * s that are registered with the <code>{@link QuartzScheduler}</code>.
@@ -284,6 +285,7 @@ public class QuartzSchedulerThread extends Thread {
 
                     clearSignaledSchedulingChange();
                     try {
+                        // 轮询查询满足执行的Trigger
                         triggers = qsRsrcs.getJobStore().acquireNextTriggers(
                                 now + idleWaitTime, Math.min(availThreadCount, qsRsrcs.getMaxBatchSize()), qsRsrcs.getBatchTimeWindow());
                         acquiresFailed = 0;
@@ -385,7 +387,7 @@ public class QuartzSchedulerThread extends Thread {
                                 qsRsrcs.getJobStore().releaseAcquiredTrigger(triggers.get(i));
                                 continue;
                             }
-
+                            // 开始执行作业，创建JobRunShell执行作业。JobRunShell是Runnable一个子实现
                             JobRunShell shell = null;
                             try {
                                 shell = qsRsrcs.getJobRunShellFactory().createJobRunShell(bndle);
@@ -395,6 +397,7 @@ public class QuartzSchedulerThread extends Thread {
                                 continue;
                             }
 
+                            // 执行作业
                             if (qsRsrcs.getThreadPool().runInThread(shell) == false) {
                                 // this case should never happen, as it is indicative of the
                                 // scheduler being shutdown or a bug in the thread pool or
