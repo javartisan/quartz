@@ -352,6 +352,8 @@ public class QuartzSchedulerThread extends Thread {
                         }
                         if(goAhead) {
                             try {
+                                // 更新Trigger下次执行时间
+                                // 注意：先更新Trigger的下次执行时间之后执行作业，因此在Job里面可以使用Trigger获取作业本次执行时间以及下次时间
                                 List<TriggerFiredResult> res = qsRsrcs.getJobStore().triggersFired(triggers);
                                 if(res != null)
                                     bndles = res;

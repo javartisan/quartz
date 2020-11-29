@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 作业封装的Task抽象，里面封装Trigger与JobDetail
  * <p>
  * JobRunShell instances are responsible for providing the 'safe' environment
  * for <code>Job</code> s to run in, and for performing all of the work of
@@ -48,12 +49,11 @@ import org.slf4j.LoggerFactory;
  * scheduler determines that a <code>Job</code> has been triggered.
  * </p>
  *
+ * @author James House
  * @see JobRunShellFactory
  * @see org.quartz.core.QuartzSchedulerThread
  * @see org.quartz.Job
  * @see org.quartz.Trigger
- *
- * @author James House
  */
 public class JobRunShell extends SchedulerListenerSupport implements Runnable {
     /*
@@ -67,7 +67,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
     protected JobExecutionContextImpl jec = null;
 
     protected QuartzScheduler qs = null;
-    
+
     protected TriggerFiredBundle firedTriggerBundle = null;
 
     protected Scheduler scheduler = null;
@@ -89,9 +89,8 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
      * Create a JobRunShell instance with the given settings.
      * </p>
      *
-     * @param scheduler
-     *          The <code>Scheduler</code> instance that should be made
-     *          available within the <code>JobExecutionContext</code>.
+     * @param scheduler The <code>Scheduler</code> instance that should be made
+     *                  available within the <code>JobExecutionContext</code>.
      */
     public JobRunShell(Scheduler scheduler, TriggerFiredBundle bndle) {
         this.scheduler = scheduler;
@@ -116,8 +115,14 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
         return log;
     }
 
+    /**
+     * 生成JobExecutionContext实例
+     *
+     * @param sched
+     * @throws SchedulerException
+     */
     public void initialize(QuartzScheduler sched)
-        throws SchedulerException {
+            throws SchedulerException {
         this.qs = sched;
 
         Job job = null;
@@ -139,7 +144,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                             + jobDetail.getKey() + "'", se);
             throw se;
         }
-
+        //生成JobExecutionContext实例
         this.jec = new JobExecutionContextImpl(scheduler, firedTriggerBundle, job);
     }
 
@@ -160,6 +165,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                 Job job = jec.getJobInstance();
 
                 try {
+                    // 可以拓展作业前置工作
                     begin();
                 } catch (SchedulerException se) {
                     qs.notifySchedulerListenersError("Error executing Job ("
@@ -173,17 +179,17 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                     if (!notifyListenersBeginning(jec)) {
                         break;
                     }
-                } catch(VetoedException ve) {
+                } catch (VetoedException ve) {
                     try {
                         CompletedExecutionInstruction instCode = trigger.executionComplete(jec, null);
                         qs.notifyJobStoreJobVetoed(trigger, jobDetail, instCode);
-                        
+
                         // QTZ-205
                         // Even if trigger got vetoed, we still needs to check to see if it's the trigger's finalized run or not.
                         if (jec.getTrigger().getNextFireTime() == null) {
                             qs.notifySchedulerListenersFinalized(jec.getTrigger());
                         }
-
+                        //作业完成
                         complete(true);
                     } catch (SchedulerException se) {
                         qs.notifySchedulerListenersError("Error during veto of Job ("
@@ -199,6 +205,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                 // execute the job
                 try {
                     log.debug("Calling execute on job " + jobDetail.getKey());
+                    // 触发作业
                     job.execute(jec);
                     endTime = System.currentTimeMillis();
                 } catch (JobExecutionException jee) {
@@ -279,7 +286,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
     }
 
     protected void complete(boolean successfulExecution)
-        throws SchedulerException {
+            throws SchedulerException {
     }
 
     public void passivate() {
@@ -304,16 +311,16 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
             return false;
         }
 
-        if(vetoed) {
+        if (vetoed) {
             try {
                 qs.notifyJobListenersWasVetoed(jobExCtxt);
             } catch (SchedulerException se) {
                 qs.notifySchedulerListenersError(
                         "Unable to notify JobListener(s) of vetoed execution " +
-                        "while firing trigger (Trigger and Job will NOT be " +
-                        "fired!). trigger= "
-                        + jobExCtxt.getTrigger().getKey() + " job= "
-                        + jobExCtxt.getJobDetail().getKey(), se);
+                                "while firing trigger (Trigger and Job will NOT be " +
+                                "fired!). trigger= "
+                                + jobExCtxt.getTrigger().getKey() + " job= "
+                                + jobExCtxt.getJobDetail().getKey(), se);
 
             }
             throw new VetoedException();

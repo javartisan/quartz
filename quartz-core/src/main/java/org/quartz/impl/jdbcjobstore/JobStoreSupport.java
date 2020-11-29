@@ -2841,6 +2841,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         do {
             currentLoopCount ++;
             try {
+                // 查询满足执行条件的Trigger
                 List<TriggerKey> keys = getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
                 
                 // No trigger is ready to fire yet.
@@ -2861,6 +2862,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     JobKey jobKey = nextTrigger.getJobKey();
                     JobDetail job;
                     try {
+                        // 检索Trigger对应的JobDetail
                         job = retrieveJob(conn, jobKey);
                     } catch (JobPersistenceException jpe) {
                         try {
@@ -2871,7 +2873,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         }
                         continue;
                     }
-                    
+                    // 校验是否允许并发执行
                     if (job.isConcurrentExectionDisallowed()) {
                         if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                             continue; // next trigger
@@ -2903,6 +2905,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         continue; // next trigger
                     }
                     nextTrigger.setFireInstanceId(getFiredTriggerRecordId());
+                    // 向QRTZ_FIRED_TRIGGERS表存储一条记录标记已经触发Trigger
                     getDelegate().insertFiredTrigger(conn, nextTrigger, STATE_ACQUIRED, null);
 
                     if(acquiredTriggers.isEmpty()) {
@@ -2982,6 +2985,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         TriggerFiredResult result;
                         for (OperableTrigger trigger : triggers) {
                             try {
+                              // 更新Trigger的下次执行时间
                               TriggerFiredBundle bundle = triggerFired(conn, trigger);
                               result = new TriggerFiredResult(bundle);
                             } catch (JobPersistenceException jpe) {
@@ -3063,9 +3067,11 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     + e.getMessage(), e);
         }
 
+        // 获取上次执行计算
         Date prevFireTime = trigger.getPreviousFireTime();
 
         // call triggered - to update the trigger's next-fire-time state...
+        //更新下次执行时间
         trigger.triggered(cal);
 
         String state = STATE_WAITING;
@@ -3093,6 +3099,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             force = true;
         }
 
+        // 更新Trigger
         storeTrigger(conn, trigger, job, true, state, force, false);
 
         job.getJobDataMap().clearDirtyFlag();
