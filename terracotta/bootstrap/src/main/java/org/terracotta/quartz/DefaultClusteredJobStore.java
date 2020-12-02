@@ -421,11 +421,6 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
         }
     }
 
-    @Override
-    public void storeJobsAndTrigger(List<JobDetail> newJobs, OperableTrigger newTrigger) throws ObjectAlreadyExistsException, JobPersistenceException {
-        throw new RuntimeException("Not support !");
-    }
-
     /**
      * <p>
      * Store the given <code>{@link org.quartz.Job}</code>.

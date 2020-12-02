@@ -321,11 +321,6 @@ public class PlainTerracottaJobStore<T extends ClusteredJobStore> implements Ter
     }
 
     @Override
-    public void storeJobsAndTrigger(List<JobDetail> newJobs, OperableTrigger newTrigger) throws ObjectAlreadyExistsException, JobPersistenceException {
-        throw new RuntimeException("Not support.");
-    }
-
-    @Override
     public void storeTrigger(OperableTrigger newTrigger, boolean replaceExisting) throws JobPersistenceException {
         clusteredJobStore.storeTrigger(newTrigger, replaceExisting);
     }
