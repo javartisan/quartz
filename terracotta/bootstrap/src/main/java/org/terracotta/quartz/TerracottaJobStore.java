@@ -16,7 +16,13 @@
  */
 package org.terracotta.quartz;
 
+import org.quartz.JobDetail;
+import org.quartz.JobPersistenceException;
+import org.quartz.ObjectAlreadyExistsException;
+import org.quartz.spi.OperableTrigger;
 import org.terracotta.toolkit.internal.ToolkitInternal;
+
+import java.util.List;
 
 public class TerracottaJobStore extends AbstractTerracottaJobStore {
   @Override
@@ -24,4 +30,8 @@ public class TerracottaJobStore extends AbstractTerracottaJobStore {
     return new PlainTerracottaJobStore(toolkit);
   }
 
+  @Override
+  public void storeJobsAndTrigger(List<JobDetail> newJobs, OperableTrigger newTrigger) throws ObjectAlreadyExistsException, JobPersistenceException {
+    throw new RuntimeException("Not support !");
+  }
 }
