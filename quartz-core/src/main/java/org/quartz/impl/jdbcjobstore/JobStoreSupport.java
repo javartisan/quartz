@@ -1253,13 +1253,20 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         + ") referenced by the trigger does not exist.");
             }
 
-            /**
-             * 如果是打包作业需要做兼容处理，需要考虑如何做兼容。需要弄明白state含义
-             */
-            if (job.isConcurrentExectionDisallowed() && !recovering) {
-                // 不允许并发并且不恢复
-                //TODO REVIEW  checkBlockedState与state表示的含义是什么？
-                state = checkBlockedState(conn, job.getKey(), state);
+
+            if (!jobKey.isJobPack()) {
+                if (job.isConcurrentExectionDisallowed() && !recovering) {
+                    state = checkBlockedState(conn, job.getKey(), state);
+                }
+            } else {
+                /**
+                 * 如果是打包作业需要做兼容处理，需要考虑如何做兼容。需要弄明白state含义
+                 */
+                if (job.isConcurrentExectionDisallowed() && !recovering) {
+                    // 不允许并发并且不恢复
+                    //TODO REVIEW  checkBlockedState与state表示的含义是什么？
+                    state = checkBlockedState(conn, job.getKey(), state);
+                }
             }
 
             if (existingTrigger) {

@@ -1046,7 +1046,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     public int insertTrigger(Connection conn, OperableTrigger trigger, String state,
                              JobDetail jobDetail) throws SQLException, IOException {
+        return insertTrigger(conn, trigger, state, jobDetail);
+    }
 
+    @Override
+    public int insertTrigger(Connection conn, OperableTrigger trigger, String state, JobKey jobKey) throws SQLException, IOException {
         ByteArrayOutputStream baos = null;
         if (trigger.getJobDataMap().size() > 0) {
             baos = serializeJobData(trigger.getJobDataMap());
@@ -1099,7 +1103,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             if (tDel == null)
                 insertBlobTrigger(conn, trigger);
             else
-                tDel.insertExtendedTriggerProperties(conn, trigger, state, jobDetail);
+                tDel.insertExtendedTriggerProperties(conn, trigger, state, jobKey);
 
         } finally {
             closeStatement(ps);

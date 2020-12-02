@@ -15,9 +15,13 @@
  */
 package org.quartz.impl.jdbcjobstore;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.TimeZone;
 
 import org.quartz.CalendarIntervalScheduleBuilder;
+import org.quartz.JobKey;
 import org.quartz.ScheduleBuilder;
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
@@ -32,6 +36,7 @@ public class CalendarIntervalTriggerPersistenceDelegate extends SimpleProperties
     public String getHandledTriggerTypeDiscriminator() {
         return TTYPE_CAL_INT;
     }
+
 
     @Override
     protected SimplePropertiesTriggerProperties getTriggerProperties(OperableTrigger trigger) {
