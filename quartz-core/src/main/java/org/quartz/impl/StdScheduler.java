@@ -285,7 +285,11 @@ public class StdScheduler implements Scheduler {
     public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob, boolean replace) throws SchedulerException {
         sched.scheduleJob(jobDetail,  triggersForJob, replace);
     }
-    
+
+    @Override
+    public void scheduleJobs(List<JobDetail> jobDetails, Trigger trigger, boolean replace) throws SchedulerException {
+
+    }
     public boolean unscheduleJobs(List<TriggerKey> triggerKeys)
             throws SchedulerException {
         return sched.unscheduleJobs(triggerKeys);
@@ -622,6 +626,4 @@ public class StdScheduler implements Scheduler {
     public boolean interrupt(String fireInstanceId) throws UnableToInterruptJobException {
         return sched.interrupt(fireInstanceId);
     }
-
-  
 }

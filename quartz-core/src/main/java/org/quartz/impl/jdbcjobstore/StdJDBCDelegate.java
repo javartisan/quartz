@@ -35,15 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.quartz.Calendar;
 import org.quartz.Job;
@@ -814,6 +806,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps = conn.prepareStatement(rtp(SELECT_JOB_DETAIL));
             ps.setString(1, jobKey.getName());
             ps.setString(2, jobKey.getGroup());
+
             rs = ps.executeQuery();
 
             JobDetailImpl job = null;
@@ -841,6 +834,50 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             }
 
             return job;
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+    }
+
+    public List<JobDetail> selectJobDetails(Connection conn, JobKey jobKey,
+                                            ClassLoadHelper loadHelper)
+            throws ClassNotFoundException, IOException, SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(SELECT_JOB_DETAIL));
+            ps.setString(1, jobKey.getName());
+            ps.setString(2, jobKey.getGroup());
+
+            rs = ps.executeQuery();
+
+            List<JobDetail> jobs = new ArrayList<>();
+
+            while (rs.next()) {
+                JobDetailImpl job = new JobDetailImpl();
+                job.setName(rs.getString(COL_JOB_NAME));
+                job.setGroup(rs.getString(COL_JOB_GROUP));
+                job.setDescription(rs.getString(COL_DESCRIPTION));
+                job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
+                job.setDurability(getBoolean(rs, COL_IS_DURABLE));
+                job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY));
+
+                Map<?, ?> map = null;
+                if (canUseProperties()) {
+                    map = getMapFromProperties(rs);
+                } else {
+                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+                }
+
+                if (null != map) {
+                    job.setJobDataMap(new JobDataMap(map));
+                }
+                jobs.add(job);
+            }
+
+            return jobs;
         } finally {
             closeResultSet(rs);
             closeStatement(ps);
