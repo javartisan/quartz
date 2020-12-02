@@ -1011,7 +1011,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
                     "Based on configured schedule, the given trigger will never fire.");
         }
 
-        resources.getJobStore().storeJobsAndTrigger(jobs, (OperableTrigger) trigger);
+        resources.getJobStore().storeJobsAndTrigger(jobs, (OperableTrigger) trigger, true);
         notifySchedulerThread(0L);
         for (JobDetail job : jobs) {
             notifySchedulerListenersJobAdded(job);

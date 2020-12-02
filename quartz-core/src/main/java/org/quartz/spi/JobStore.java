@@ -129,9 +129,11 @@ public interface JobStore {
     void storeJobAndTrigger(JobDetail newJob, OperableTrigger newTrigger)
             throws ObjectAlreadyExistsException, JobPersistenceException;
 
-    public void storeJobsAndTrigger(final List<JobDetail> newJobs,
-                                    final OperableTrigger newTrigger)
-            throws ObjectAlreadyExistsException, JobPersistenceException;
+    default void storeJobsAndTrigger(final List<JobDetail> newJobs,
+                                     final OperableTrigger newTrigger, boolean replace)
+            throws ObjectAlreadyExistsException, JobPersistenceException {
+        throw new RuntimeException("Not support");
+    }
 
     /**
      * Store the given <code>{@link org.quartz.JobDetail}</code>.

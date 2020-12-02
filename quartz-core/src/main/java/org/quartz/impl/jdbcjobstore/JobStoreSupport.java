@@ -1071,17 +1071,18 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 });
     }
 
+    @Override
     public void storeJobsAndTrigger(final List<JobDetail> newJobs,
-                                    final OperableTrigger newTrigger)
+                                    final OperableTrigger newTrigger, boolean replace)
             throws JobPersistenceException {
         executeInLock(
                 (isLockOnInsert()) ? LOCK_TRIGGER_ACCESS : null,
                 new VoidTransactionCallback() {
                     public void executeVoid(Connection conn) throws JobPersistenceException {
                         // 存储作业
-                        storeJobs(conn, newJobs, false);
+                        storeJobs(conn, newJobs, replace);
                         //存储Trigger
-                        storeTrigger(conn, newTrigger, null, false,
+                        storeTrigger(conn, newTrigger, null, replace,
                                 Constants.STATE_WAITING, false, false);
                     }
                 });

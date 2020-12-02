@@ -250,7 +250,7 @@ public class RAMJobStore implements JobStore {
     }
 
     @Override
-    public void storeJobsAndTrigger(List<JobDetail> newJobs, OperableTrigger newTrigger) throws ObjectAlreadyExistsException, JobPersistenceException {
+    public void storeJobsAndTrigger(List<JobDetail> newJobs, OperableTrigger newTrigger, boolean replace) throws ObjectAlreadyExistsException, JobPersistenceException {
         throw new RuntimeException("Not support");
     }
 

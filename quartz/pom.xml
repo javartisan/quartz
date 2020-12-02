@@ -185,29 +185,29 @@
           </execution>
         </executions>
       </plugin>           
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>${gmaven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>repackage-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                println "repackaging the jar"
-                def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
-                ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
-                         tofile: new File(project.build.outputDirectory, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"))
-                ant.jar(destfile: jarFile, basedir: new File(project.build.outputDirectory).getAbsolutePath(), manifest: new File(project.build.directory, "MANIFEST.MF"))
-              </source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>       
+<!--      <plugin>-->
+<!--        <groupId>org.codehaus.gmaven</groupId>-->
+<!--        <artifactId>gmaven-plugin</artifactId>-->
+<!--        <version>${gmaven-plugin.version}</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>repackage-jar</id>-->
+<!--            <phase>package</phase>-->
+<!--            <goals>-->
+<!--              <goal>execute</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <source>-->
+<!--                println "repackaging the jar"-->
+<!--                def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")-->
+<!--                ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),-->
+<!--                         tofile: new File(project.build.outputDirectory, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"))-->
+<!--                ant.jar(destfile: jarFile, basedir: new File(project.build.outputDirectory).getAbsolutePath(), manifest: new File(project.build.directory, "MANIFEST.MF"))-->
+<!--              </source>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>       -->
     </plugins>
   </build>
   
